@@ -69,8 +69,7 @@
 </div><!--.contenedor-->
 
 
-<script src="js/sweetalert2.all.min.js"></script>
-
-
-</body>
-</html>
+<?php 
+    include 'inc/templates/footer.php';
+  
+?>
