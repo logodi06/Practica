@@ -1,7 +1,14 @@
 
 <?php 
+    session_start();
     include 'inc/funciones/funciones.php';
     include 'inc/templates/header.php';
+
+   
+   if(isset($_GET['cerrar_sesion'])){
+       $_SESSION = array();
+   }
+
 ?>
 
     <div class="contenedor-formulario">

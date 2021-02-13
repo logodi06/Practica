@@ -57,13 +57,44 @@ if($accion ==='crear'){
          $stmt->bind_param('s',$usuario);
          $stmt->execute();
         //Loguear al usuario
-        $stmt->bind_result($nombre_usuario,$id_usuario,$password_usuario);
+        $stmt->bind_result($nombre_usuario,$id_usuario,$pass_usuario);
+        $stmt->fetch();
+        if($nombre_usuario){
+
+            //El usuario existe, verificar su password
+            if(password_verify($password,$pass_usuario)){
+                //INiciar la sesion
+                session_start();
+                $_SESSION['nombre'] = $usuario;
+                //login correcto
+                $_SESSION['id'] = $id_usuario;
+                $_SESSION['login'] = true;
+
+                $respuesta = array(
+                    'respuesta' => 'correcto',
+                    'nombre' => $nombre_usuario,
+                    'tipo' => $accion 
+                );
+            }else{
+                //Login incorrecto, enviar error
+                $respuesta = array(
+                    'resultado' => 'Contraseña incorrecta'
+                );
+            }
+           
+        }else{
+            $respuesta = array(
+                'error' => 'Usuario no existe'
+            );
+        }
          $stmt->close();
          $conn->close();
      } catch (Exception $e) {
          $respuesta = array(
-            'error' => $e->getMessage();
+            'error' => $e->getMessage()
 
          );
      }
+
+     echo json_encode($respuesta);
  }

@@ -19,7 +19,7 @@ function validarRegistro(e) {
             title: 'Error...',
             text: 'Ambos campos son obligatorios',
 
-        })
+        });
     } else {
         //Ambos tienen algo, mandar a ejecutar Ajax
 
@@ -39,8 +39,9 @@ function validarRegistro(e) {
         //Retorno de datos
         xhr.onload = function() {
             if (this.status === 200) {
-                console.log(JSON.parse(xhr.responseText));
+                //console.log(JSON.parse(xhr.responseText));
                 var respuesta = JSON.parse(xhr.responseText);
+                console.log(respuesta);
                 if (respuesta.respuesta === 'correcto') {
                     //Si es un nuevo usuario
                     if (respuesta.tipo === 'crear') {
@@ -49,6 +50,17 @@ function validarRegistro(e) {
                             text: 'El usuario se creo correctamente',
                             type: 'success'
                         });
+                    } else if (respuesta.tipo === 'login') {
+                        swal({
+                                title: 'Login correcto',
+                                text: 'Presiona OK para abrir el dashboard',
+                                type: 'success'
+                            })
+                            .then(resultado => {
+                                if (resultado.value) {
+                                    window.location.href = 'index.php';
+                                }
+                            })
                     }
                 } else {
                     //Hubo un error
