@@ -10,6 +10,9 @@ function eventListeners() {
     //Boton para una nueva tarea
     document.querySelector('#nuevaTarea').addEventListener('click', agregarTarea);
 
+    ///Botones para las acciones de las tareas
+    document.querySelector('.listado-pendientes').addEventListener('click', accionesTareas);
+
 }
 
 function nuevoProyecto(e) {
@@ -147,6 +150,11 @@ function agregarTarea(e) {
                             text: 'La tarea: ' + tarea + ' se agregó correctamente'
                         });
 
+                        //Seleccionar el parrafo con la lista vacia
+                        var parrafoListaVacia = document.querySelectorAll('.lista-vacia');
+                        if (parrafoListaVacia.length > 0) {
+                            document.querySelector('.lista-vacia').remove();
+                        }
                         //Construir en el template
                         var nuevaTarea = document.createElement('li');
 
@@ -186,4 +194,114 @@ function agregarTarea(e) {
 
         xhr.send(datos);
     }
+}
+
+//Cambiar el estado de las tareas o las elimina
+function accionesTareas(e) {
+    e.preventDefault();
+    if (e.target.classList.contains('fa-check-circle')) {
+        if (e.target.classList.contains('completo')) {
+            e.target.classList.remove('completo');
+            cambiarEstadoTarea(e.target, 0);
+        } else {
+            e.target.classList.add('completo');
+            cambiarEstadoTarea(e.target, 1);
+        }
+    } else if (e.target.classList.contains('fa-trash')) {
+        Swal.fire({
+            title: 'Estas seguro de elimiar?',
+            text: "Esta acción no se puede deshacers!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, eliminar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+
+
+                var tareaEliminar = e.target.parentElement.parentElement;
+
+                //Borrar de la BD
+                eliminarTareaBD(tareaEliminar);
+
+                //borrar del HTML
+                tareaEliminar.remove();
+
+                Swal(
+                    'Eliminado!',
+                    'La tarea ha sido eliminada.',
+                    'success'
+                )
+            }
+        })
+    }
+
+}
+
+//COmpleta o descompleta la tarea
+function cambiarEstadoTarea(tarea, estado) {
+    var idTarea = tarea.parentElement.parentElement.id.split(':');
+
+    //Crear llamado a Ajax
+    var xhr = new XMLHttpRequest();
+
+    //Crear formData
+    var datos = new FormData();
+    datos.append('id', idTarea[1]);
+    datos.append('accion', 'actualizar');
+    datos.append('estado', estado);
+
+    console.log(estado);
+
+    //Abrir la conexion
+    xhr.open('POST', 'inc/modelos/modelo-tareas.php', true);
+
+    //Obtener resultados
+    xhr.onload = function() {
+        if (this.status === 200) {
+            console.log(JSON.parse(xhr.responseText));
+        } else {
+
+        }
+    }
+
+    xhr.send(datos);
+}
+
+
+//Elimina las tareas de la BD
+function eliminarTareaBD(tarea) {
+    var idTarea = tarea.id.split(':');
+
+    //Crear llamado a Ajax
+    var xhr = new XMLHttpRequest();
+
+    //Crear formData
+    var datos = new FormData();
+    datos.append('id', idTarea[1]);
+    datos.append('accion', 'eliminar');
+
+    //Abrir la conexion
+    xhr.open('POST', 'inc/modelos/modelo-tareas.php', true);
+
+    //Obtener resultados
+    xhr.onload = function() {
+        if (this.status === 200) {
+            console.log(JSON.parse(xhr.responseText));
+            //Comprobar que haya tareas restanes
+            var listaTareasRestantes = document.querySelectorAll('li.tarea');
+            if (listaTareasRestantes.length === 0) {
+                document.querySelector('.listado-pendientes').innerHTML = `"<p class='lista-vacia'>No hay tareas en este proyecto</p>"`;
+            }
+
+        } else {
+
+        }
+    }
+
+    xhr.send(datos);
+
+
 }

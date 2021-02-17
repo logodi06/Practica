@@ -64,8 +64,9 @@
 
                <?php }
             }else{
-                //No hay tareas
-                echo "<p>No hay tareas en este proyecto</p>";
+            
+                echo "<p class='lista-vacia'>No hay tareas en este proyecto</p>";
+                
             }
             ?>
                
